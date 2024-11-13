@@ -3,11 +3,14 @@
 <head>
     <title>Interactive Map</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <!-- Leaflet JavaScript -->
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 </head>
 <body>
-    <div id="map" style="width: 100%; height: 80vh;"></div>
+    <!-- Map container -->
+    <div id="map" style="width: 100%; height: 100vh;"></div>
 
     <script>
         // Initialize the map centered on Norway
@@ -34,19 +37,29 @@
                 .openOn(map);  // Open the popup on the map
         }
 
-        // Listen for marker drag end to update coordinates
+        // Function to update URL parameters with current coordinates
+        function updateURLParams(lat, lon) {
+            const url = new URL(window.location);
+            url.searchParams.set("lat", lat);
+            url.searchParams.set("lon", lon);
+            window.history.replaceState({}, '', url);  // Update the URL without reloading the page
+        }
+
+        // Listen for marker drag end to update coordinates and URL
         marker.on('dragend', function(e) {
             var lat = marker.getLatLng().lat;
             var lon = marker.getLatLng().lng;
             updatePopup(lat, lon);  // Update the popup with new coordinates
+            updateURLParams(lat, lon);  // Update the URL with new coordinates
         });
 
-        // Listen for map clicks to update marker and coordinates
+        // Listen for map clicks to update marker, coordinates, and URL
         map.on('click', function(e) {
             var lat = e.latlng.lat;
             var lon = e.latlng.lng;
             marker.setLatLng(e.latlng);  // Move marker to clicked location
             updatePopup(lat, lon);  // Update the popup with new coordinates
+            updateURLParams(lat, lon);  // Update the URL with new coordinates
         });
 
         // Initialize popup with the marker's starting coordinates
