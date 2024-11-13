@@ -7,8 +7,13 @@
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 </head>
 <body>
-    <div id="map" style="width: 100%; height: 100vh;"></div>
+    <div id="map" style="width: 100%; height: 80vh;"></div>
+    <button id="send-coordinates" style="display: block; margin: 20px auto; padding: 10px; font-size: 16px;">
+        Send Coordinates to Gradio
+    </button>
+
     <script>
+        // Initialize the map centered on Norway
         var map = L.map('map').setView([60.472, 8.4689], 5);
 
         // Add OpenStreetMap tiles
@@ -18,26 +23,29 @@
         }).addTo(map);
 
         // Add a draggable marker
-        var marker = L.marker([60.472, 8.4689], {draggable: true}).addTo(map);
+        var marker = L.marker([60.472, 8.4689], { draggable: true }).addTo(map);
 
-        // Function to send coordinates to the parent Gradio window
-        function sendCoordinates(lat, lng) {
-            window.parent.postMessage({ lat: lat, lng: lng }, "*");  // Send message to the parent window
+        // Function to send coordinates to the parent window (Gradio app)
+        function sendCoordinatesToGradio() {
+            var lat = marker.getLatLng().lat;
+            var lon = marker.getLatLng().lng;
+            window.parent.postMessage({ lat: lat, lng: lon }, "*");
         }
 
-        // Update coordinates when marker is dragged
-        marker.on('dragend', function (e) {
-            var lat = marker.getLatLng().lat;
-            var lng = marker.getLatLng().lng;
-            sendCoordinates(lat, lng);
-        });
+        // Listen for clicks on the "Send Coordinates" button
+        document.getElementById("send-coordinates").addEventListener("click", sendCoordinatesToGradio);
 
-        // Update coordinates when the map is clicked
+        // Update marker position and popup when the map is clicked
         map.on('click', function(e) {
             var lat = e.latlng.lat;
-            var lng = e.latlng.lng;
-            marker.setLatLng(e.latlng);  // Move marker to clicked location
-            sendCoordinates(lat, lng);
+            var lon = e.latlng.lng;
+            marker.setLatLng(e.latlng);
+        });
+
+        // Update marker position when it’s dragged
+        marker.on('dragend', function(e) {
+            var lat = marker.getLatLng().lat;
+            var lon = marker.getLatLng().lng;
         });
     </script>
 </body>
