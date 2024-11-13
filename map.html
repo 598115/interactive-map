@@ -22,31 +22,29 @@
             attribution: '© OpenStreetMap'
         }).addTo(map);
 
-        // Add a draggable marker
+        // Add a draggable marker and a popup to show coordinates
         var marker = L.marker([60.472, 8.4689], { draggable: true }).addTo(map);
+        marker.bindPopup("Click on the map to select coordinates").openPopup();
+
+        // Function to update marker position and display coordinates in a popup
+        function updateCoordinates(lat, lon) {
+            marker.setLatLng([lat, lon]);  // Move the marker to the new coordinates
+            marker.getPopup().setContent("Latitude: " + lat.toFixed(5) + ", Longitude: " + lon.toFixed(5)).openOn(map);  // Update popup content
+        }
+
+        // Listen for map clicks to update marker and coordinates
+        map.on('click', function(e) {
+            var lat = e.latlng.lat;
+            var lon = e.latlng.lng;
+            updateCoordinates(lat, lon);  // Update marker position and popup content
+        });
 
         // Function to send coordinates to the parent window (Gradio app)
         function sendCoordinatesToGradio() {
             var lat = marker.getLatLng().lat;
             var lon = marker.getLatLng().lng;
-            window.parent.postMessage({ lat: lat, lng: lon }, "*");
+            window.parent.postMessage({ lat: lat, lng: lon }, "*");  // Send coordinates via postMessage
         }
 
         // Listen for clicks on the "Send Coordinates" button
-        document.getElementById("send-coordinates").addEventListener("click", sendCoordinatesToGradio);
-
-        // Update marker position and popup when the map is clicked
-        map.on('click', function(e) {
-            var lat = e.latlng.lat;
-            var lon = e.latlng.lng;
-            marker.setLatLng(e.latlng);
-        });
-
-        // Update marker position when it’s dragged
-        marker.on('dragend', function(e) {
-            var lat = marker.getLatLng().lat;
-            var lon = marker.getLatLng().lng;
-        });
-    </script>
-</body>
-</html>
+        document.getElementById("send-coordinates").addEventListener("click", sendCo
