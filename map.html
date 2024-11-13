@@ -10,7 +10,11 @@
 </head>
 <body>
     <!-- Map container -->
-    <div id="map" style="width: 100%; height: 100vh;"></div>
+    <div id="map" style="width: 100%; height: 80vh;"></div>
+    <!-- Link to reload Gradio app with coordinates -->
+    <p style="text-align: center; margin-top: 10px;">
+        <a id="reload-link" href="#" target="_parent" style="font-size: 16px; color: blue;">Click here to use these coordinates in the app</a>
+    </p>
 
     <script>
         // Initialize the map centered on Norway
@@ -28,38 +32,42 @@
         // Create a popup instance to show coordinates
         var popup = L.popup();
 
-        // Function to update the popup and URL with current coordinates
-        function updatePopupAndURL(lat, lon) {
+        // Function to update the popup and the link URL with current coordinates
+        function updatePopupAndLink(lat, lon) {
             // Set the content of the popup with the latitude and longitude
             popup
                 .setLatLng([lat, lon])  // Position the popup at the marker's location
                 .setContent("Latitude: " + lat.toFixed(5) + "<br>Longitude: " + lon.toFixed(5))
                 .openOn(map);  // Open the popup on the map
 
-            // Update the URL parameters with current coordinates
-            const url = new URL(window.location);
+            // Update the "reload-link" href with the selected coordinates
+            const reloadLink = document.getElementById("reload-link");
+            const parentURL = window.location !== window.parent.location
+                ? document.referrer // Get parent URL if in iframe
+                : window.location.href;
+            const url = new URL(parentURL);
             url.searchParams.set("lat", lat);
             url.searchParams.set("lon", lon);
-            window.history.replaceState({}, '', url);  // Update the URL without reloading the page
+            reloadLink.href = url.href;
         }
 
-        // Listen for marker drag end to update coordinates and URL
+        // Listen for marker drag end to update coordinates and link URL
         marker.on('dragend', function(e) {
             var lat = marker.getLatLng().lat;
             var lon = marker.getLatLng().lng;
-            updatePopupAndURL(lat, lon);  // Update the popup and URL with new coordinates
+            updatePopupAndLink(lat, lon);  // Update the popup and link URL with new coordinates
         });
 
-        // Listen for map clicks to update marker, coordinates, and URL
+        // Listen for map clicks to update marker, coordinates, and link URL
         map.on('click', function(e) {
             var lat = e.latlng.lat;
             var lon = e.latlng.lng;
             marker.setLatLng(e.latlng);  // Move marker to clicked location
-            updatePopupAndURL(lat, lon);  // Update the popup and URL with new coordinates
+            updatePopupAndLink(lat, lon);  // Update the popup and link URL with new coordinates
         });
 
-        // Initialize popup with the marker's starting coordinates
-        updatePopupAndURL(marker.getLatLng().lat, marker.getLatLng().lng);
+        // Initialize popup and link with the marker's starting coordinates
+        updatePopupAndLink(marker.getLatLng().lat, marker.getLatLng().lng);
     </script>
 </body>
 </html>
