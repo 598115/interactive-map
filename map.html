@@ -12,9 +12,6 @@
     <!-- Map container -->
     <div id="map" style="width: 100%; height: 80vh;"></div>
     <!-- Link to reload Gradio app with coordinates -->
-    <p style="text-align: center; margin-top: 10px;">
-        <a id="reload-link" href="#" target="_parent" style="font-size: 16px; color: blue;">Click here to use these coordinates in the app</a>
-    </p>
 
     <script>
         // Initialize the map centered on Norway
@@ -39,16 +36,6 @@
                 .setLatLng([lat, lon])  // Position the popup at the marker's location
                 .setContent("Latitude: " + lat.toFixed(5) + "<br>Longitude: " + lon.toFixed(5))
                 .openOn(map);  // Open the popup on the map
-
-            // Update the "reload-link" href with the selected coordinates
-            const reloadLink = document.getElementById("reload-link");
-            const parentURL = window.location !== window.parent.location
-                ? document.referrer // Get parent URL if in iframe
-                : window.location.href;
-            const url = new URL(parentURL);
-            url.searchParams.set("lat", lat);
-            url.searchParams.set("lon", lon);
-            reloadLink.href = url.href;
         }
 
         // Listen for marker drag end to update coordinates and link URL
