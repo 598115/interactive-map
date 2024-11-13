@@ -8,9 +8,6 @@
 </head>
 <body>
     <div id="map" style="width: 100%; height: 80vh;"></div>
-    <button id="send-coordinates" style="display: block; margin: 20px auto; padding: 10px; font-size: 16px;">
-        Send Coordinates to Gradio
-    </button>
 
     <script>
         // Initialize the map centered on Norway
@@ -22,29 +19,38 @@
             attribution: '© OpenStreetMap'
         }).addTo(map);
 
-        // Add a draggable marker and a popup to show coordinates
+        // Add a draggable marker with a popup to show coordinates
         var marker = L.marker([60.472, 8.4689], { draggable: true }).addTo(map);
-        marker.bindPopup("Click on the map to select coordinates").openPopup();
 
-        // Function to update marker position and display coordinates in a popup
-        function updateCoordinates(lat, lon) {
-            marker.setLatLng([lat, lon]);  // Move the marker to the new coordinates
-            marker.getPopup().setContent("Latitude: " + lat.toFixed(5) + ", Longitude: " + lon.toFixed(5)).openOn(map);  // Update popup content
+        // Create a popup instance to show coordinates
+        var popup = L.popup();
+
+        // Function to update the popup with current coordinates
+        function updatePopup(lat, lon) {
+            // Set the content of the popup with the latitude and longitude
+            popup
+                .setLatLng([lat, lon])  // Position the popup at the marker's location
+                .setContent("Latitude: " + lat.toFixed(5) + "<br>Longitude: " + lon.toFixed(5))
+                .openOn(map);  // Open the popup on the map
         }
+
+        // Listen for marker drag end to update coordinates
+        marker.on('dragend', function(e) {
+            var lat = marker.getLatLng().lat;
+            var lon = marker.getLatLng().lng;
+            updatePopup(lat, lon);  // Update the popup with new coordinates
+        });
 
         // Listen for map clicks to update marker and coordinates
         map.on('click', function(e) {
             var lat = e.latlng.lat;
             var lon = e.latlng.lng;
-            updateCoordinates(lat, lon);  // Update marker position and popup content
+            marker.setLatLng(e.latlng);  // Move marker to clicked location
+            updatePopup(lat, lon);  // Update the popup with new coordinates
         });
 
-        // Function to send coordinates to the parent window (Gradio app)
-        function sendCoordinatesToGradio() {
-            var lat = marker.getLatLng().lat;
-            var lon = marker.getLatLng().lng;
-            window.parent.postMessage({ lat: lat, lng: lon }, "*");  // Send coordinates via postMessage
-        }
-
-        // Listen for clicks on the "Send Coordinates" button
-        document.getElementById("send-coordinates").addEventListener("click", sendCo
+        // Initialize popup with the marker's starting coordinates
+        updatePopup(marker.getLatLng().lat, marker.getLatLng().lng);
+    </script>
+</body>
+</html>
