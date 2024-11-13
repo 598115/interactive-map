@@ -10,12 +10,11 @@
 </head>
 <body>
     <!-- Map container -->
-    <div id="map" style="width: 100%; height: 80vh;"></div>
-    <!-- Link to reload Gradio app with coordinates -->
+    <div id="map" style="width: 100%; height: 100vh;"></div>
 
     <script>
         // Initialize the map centered on Norway
-        var map = L.map('map').setView([60.472, 8.4689], 5);
+        var map = L.map('map').setView([60.47, 8.47], 5);  // Initial coordinates limited to two decimals
 
         // Add OpenStreetMap tiles
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -24,37 +23,46 @@
         }).addTo(map);
 
         // Add a draggable marker with a popup to show coordinates
-        var marker = L.marker([60.472, 8.4689], { draggable: true }).addTo(map);
+        var marker = L.marker([60.47, 8.47], { draggable: true }).addTo(map);
 
         // Create a popup instance to show coordinates
         var popup = L.popup();
 
-        // Function to update the popup and the link URL with current coordinates
-        function updatePopupAndLink(lat, lon) {
+        // Function to round to two decimal places
+        function roundToTwoDecimals(num) {
+            return Math.round(num * 100) / 100;
+        }
+
+        // Function to update the popup with current coordinates, rounded to two decimals
+        function updatePopup(lat, lon) {
+            // Round the coordinates to two decimal places
+            lat = roundToTwoDecimals(lat);
+            lon = roundToTwoDecimals(lon);
+
             // Set the content of the popup with the latitude and longitude
             popup
                 .setLatLng([lat, lon])  // Position the popup at the marker's location
-                .setContent("Latitude: " + lat.toFixed(5) + "<br>Longitude: " + lon.toFixed(5))
+                .setContent("Latitude: " + lat.toFixed(2) + "<br>Longitude: " + lon.toFixed(2))  // Display with 2 decimals
                 .openOn(map);  // Open the popup on the map
         }
 
-        // Listen for marker drag end to update coordinates and link URL
+        // Listen for marker drag end to update coordinates
         marker.on('dragend', function(e) {
             var lat = marker.getLatLng().lat;
             var lon = marker.getLatLng().lng;
-            updatePopupAndLink(lat, lon);  // Update the popup and link URL with new coordinates
+            updatePopup(lat, lon);  // Update the popup with new coordinates
         });
 
-        // Listen for map clicks to update marker, coordinates, and link URL
+        // Listen for map clicks to update marker and coordinates
         map.on('click', function(e) {
             var lat = e.latlng.lat;
             var lon = e.latlng.lng;
             marker.setLatLng(e.latlng);  // Move marker to clicked location
-            updatePopupAndLink(lat, lon);  // Update the popup and link URL with new coordinates
+            updatePopup(lat, lon);  // Update the popup with new coordinates
         });
 
-        // Initialize popup and link with the marker's starting coordinates
-        updatePopupAndLink(marker.getLatLng().lat, marker.getLatLng().lng);
+        // Initialize popup with the marker's starting coordinates
+        updatePopup(marker.getLatLng().lat, marker.getLatLng().lng);
     </script>
 </body>
 </html>
