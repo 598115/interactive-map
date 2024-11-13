@@ -28,17 +28,15 @@
         // Create a popup instance to show coordinates
         var popup = L.popup();
 
-        // Function to update the popup with current coordinates
-        function updatePopup(lat, lon) {
+        // Function to update the popup and URL with current coordinates
+        function updatePopupAndURL(lat, lon) {
             // Set the content of the popup with the latitude and longitude
             popup
                 .setLatLng([lat, lon])  // Position the popup at the marker's location
                 .setContent("Latitude: " + lat.toFixed(5) + "<br>Longitude: " + lon.toFixed(5))
                 .openOn(map);  // Open the popup on the map
-        }
 
-        // Function to update URL parameters with current coordinates
-        function updateURLParams(lat, lon) {
+            // Update the URL parameters with current coordinates
             const url = new URL(window.location);
             url.searchParams.set("lat", lat);
             url.searchParams.set("lon", lon);
@@ -49,8 +47,7 @@
         marker.on('dragend', function(e) {
             var lat = marker.getLatLng().lat;
             var lon = marker.getLatLng().lng;
-            updatePopup(lat, lon);  // Update the popup with new coordinates
-            updateURLParams(lat, lon);  // Update the URL with new coordinates
+            updatePopupAndURL(lat, lon);  // Update the popup and URL with new coordinates
         });
 
         // Listen for map clicks to update marker, coordinates, and URL
@@ -58,12 +55,11 @@
             var lat = e.latlng.lat;
             var lon = e.latlng.lng;
             marker.setLatLng(e.latlng);  // Move marker to clicked location
-            updatePopup(lat, lon);  // Update the popup with new coordinates
-            updateURLParams(lat, lon);  // Update the URL with new coordinates
+            updatePopupAndURL(lat, lon);  // Update the popup and URL with new coordinates
         });
 
         // Initialize popup with the marker's starting coordinates
-        updatePopup(marker.getLatLng().lat, marker.getLatLng().lng);
+        updatePopupAndURL(marker.getLatLng().lat, marker.getLatLng().lng);
     </script>
 </body>
 </html>
