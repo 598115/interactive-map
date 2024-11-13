@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Interactive Map</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+</head>
+<body>
+    <div id="map" style="width: 100%; height: 100vh;"></div>
+    <script>
+        var map = L.map('map').setView([60.472, 8.4689], 5);
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        // Add a draggable marker
+        var marker = L.marker([60.472, 8.4689], {draggable: true}).addTo(map);
+
+        // Function to send coordinates to the parent Gradio window
+        function updateCoordinates(lat, lng) {
+            window.parent.postMessage({lat: lat, lng: lng}, '*');
+        }
+
+        // Update coordinates when marker is dragged
+        marker.on('dragend', function (e) {
+            var lat = marker.getLatLng().lat;
+            var lng = marker.getLatLng().lng;
+            updateCoordinates(lat, lng);
+        });
+
+        // Update coordinates when the map is clicked
+        map.on('click', function(e) {
+            var lat = e.latlng.lat;
+            var lng = e.latlng.lng;
+            marker.setLatLng(e.latlng);  // Move marker to clicked location
+            updateCoordinates(lat, lng);
+        });
+    </script>
+</body>
+</html>
