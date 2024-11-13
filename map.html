@@ -21,15 +21,15 @@
         var marker = L.marker([60.472, 8.4689], {draggable: true}).addTo(map);
 
         // Function to send coordinates to the parent Gradio window
-        function updateCoordinates(lat, lng) {
-            window.parent.postMessage({lat: lat, lng: lng}, '*');
+        function sendCoordinates(lat, lng) {
+            window.parent.postMessage({ lat: lat, lng: lng }, "*");  // Send message to the parent window
         }
 
         // Update coordinates when marker is dragged
         marker.on('dragend', function (e) {
             var lat = marker.getLatLng().lat;
             var lng = marker.getLatLng().lng;
-            updateCoordinates(lat, lng);
+            sendCoordinates(lat, lng);
         });
 
         // Update coordinates when the map is clicked
@@ -37,7 +37,7 @@
             var lat = e.latlng.lat;
             var lng = e.latlng.lng;
             marker.setLatLng(e.latlng);  // Move marker to clicked location
-            updateCoordinates(lat, lng);
+            sendCoordinates(lat, lng);
         });
     </script>
 </body>
